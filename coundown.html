@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Countdown Timer</title>
+<style>
+  body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #121212;
+    font-family: Arial, sans-serif;
+    color: #fff;
+  }
+
+  .timer {
+    background: #1e1e1e;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    width: 300px;
+  }
+
+  input {
+    width: 60px;
+    padding: 8px;
+    margin: 5px;
+    border-radius: 6px;
+    border: 1px solid #555;
+    text-align: center;
+    background: #222;
+    color: #fff;
+  }
+
+  .time-display {
+    font-size: 48px;
+    margin-top: 20px;
+  }
+
+  button {
+    padding: 10px 20px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    background: #4caf50;
+    color: #fff;
+    transition: 0.2s;
+  }
+
+  button:hover {
+    opacity: 0.8;
+  }
+</style>
+</head>
+<body>
+
+<div class="timer">
+  <h2>Countdown Timer</h2>
+  <div>
+    <input type="number" id="minutes" placeholder="Min" min="0">
+    <input type="number" id="seconds" placeholder="Sec" min="0" max="59">
+  </div>
+  <button id="startBtn">Start</button>
+  <div class="time-display" id="display">00:00</div>
+</div>
+
+<script>
+let countdownInterval;
+
+function formatTime(totalSec) {
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+document.getElementById("startBtn").addEventListener("click", () => {
+  clearInterval(countdownInterval);
+  let min = parseInt(document.getElementById("minutes").value) || 0;
+  let sec = parseInt(document.getElementById("seconds").value) || 0;
+  let totalSec = min * 60 + sec;
+
+  document.getElementById("display").textContent = formatTime(totalSec);
+
+  countdownInterval = setInterval(() => {
+    totalSec--;
+    if(totalSec < 0){
+      clearInterval(countdownInterval);
+      alert("Time's up!");
+      document.getElementById("display").textContent = "00:00";
+      return;
+    }
+    document.getElementById("display").textContent = formatTime(totalSec);
+  }, 1000);
+});
+</script>
+
+</body>
+</html>

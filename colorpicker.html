@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color Picker</title>
+<style>
+  body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #121212;
+    font-family: Arial, sans-serif;
+    color: #fff;
+  }
+
+  .color-picker {
+    background: #1e1e1e;
+    padding: 30px;
+    border-radius: 15px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  }
+
+  input[type="color"] {
+    width: 100px;
+    height: 50px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .preview {
+    margin-top: 20px;
+    width: 100%;
+    height: 100px;
+    border-radius: 10px;
+    background: #222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 18px;
+  }
+</style>
+</head>
+<body>
+
+<div class="color-picker">
+  <h2>Color Picker</h2>
+  <input type="color" id="colorInput" value="#ff0000">
+  <div class="preview" id="preview">#ff0000</div>
+</div>
+
+<script>
+const colorInput = document.getElementById("colorInput");
+const preview = document.getElementById("preview");
+
+colorInput.addEventListener("input", () => {
+  const color = colorInput.value;
+  preview.style.background = color;
+  preview.textContent = color;
+});
+</script>
+</body>
+</html>
