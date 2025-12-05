@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Analog Clock</title>
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #0d1117;
+    font-family: sans-serif;
+  }
+
+  .clock {
+    width: 350px;
+    height: 350px;
+    border-radius: 50%;
+    background: #111722;
+    position: relative;
+    border: 8px solid #222834;
+    box-shadow: 0 0 20px #000 inset;
+  }
+
+  /* Center Dot */
+  .center {
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+  }
+
+  /* Numbers */
+  .number {
+    position: absolute;
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 600;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Clock Hands */
+  .hand {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    transform-origin: bottom;
+    transform: translateX(-50%) rotate(0deg);
+    border-radius: 10px;
+  }
+
+  .hour {
+    width: 8px;
+    height: 80px;
+    background: #ffffff;
+  }
+
+  .minute {
+    width: 6px;
+    height: 110px;
+    background: #b5b5b5;
+  }
+
+  .second {
+    width: 3px;
+    height: 130px;
+    background: #ff3b3b;
+  }
+</style>
+</head>
+<body>
+
+<div class="clock">
+
+  <!-- Numbers 1–12 positioned with rotation math -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const clock = document.querySelector('.clock');
+
+      for (let i = 1; i <= 12; i++) {
+        let num = document.createElement("div");
+        num.className = "number";
+        num.innerText = i;
+
+        const angle = (i * 30) * Math.PI / 180;
+        const radius = 140;
+
+        const x = 175 + radius * Math.sin(angle);
+        const y = 175 - radius * Math.cos(angle);
+
+        num.style.left = x + "px";
+        num.style.top = y + "px";
+
+        clock.appendChild(num);
+      }
+    });
+  </script>
+
+  <!-- Clock Hands -->
+  <div class="hand hour" id="hour"></div>
+  <div class="hand minute" id="minute"></div>
+  <div class="hand second" id="second"></div>
+  <div class="center"></div>
+</div>
+
+<script>
+  function updateClock() {
+    const now = new Date();
+
+    const hr = now.getHours();
+    const min = now.getMinutes();
+    const sec = now.getSeconds();
+
+    const hrDeg = (hr % 12) * 30 + min * 0.5;
+    const minDeg = min * 6;
+    const secDeg = sec * 6;
+
+    document.getElementById("hour").style.transform = `translateX(-50%) rotate(${hrDeg}deg)`;
+    document.getElementById("minute").style.transform = `translateX(-50%) rotate(${minDeg}deg)`;
+    document.getElementById("second").style.transform = `translateX(-50%) rotate(${secDeg}deg)`;
+  }
+
+  setInterval(updateClock, 1000);
+  updateClock();
+</script>
+
+</body>
+</html>z

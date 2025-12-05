@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stopwatch</title>
+<style>
+  body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #121212;
+    font-family: Arial, sans-serif;
+    color: #fff;
+  }
+
+  .stopwatch {
+    background: #1e1e1e;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  }
+
+  .time {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+
+  .buttons button {
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.2s;
+  }
+
+  .buttons button:hover {
+    opacity: 0.8;
+  }
+
+  #start { background: #4caf50; color: #fff; }
+  #stop { background: #f44336; color: #fff; }
+  #reset { background: #2196f3; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="stopwatch">
+  <div class="time" id="display">00:00.000</div>
+  <div class="buttons">
+    <button id="start">Start</button>
+    <button id="stop">Stop</button>
+    <button id="reset">Reset</button>
+  </div>
+</div>
+
+<script>
+let startTime = 0;
+let elapsed = 0;
+let timerInterval;
+
+const display = document.getElementById("display");
+
+function formatTime(ms) {
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  const milliseconds = ms % 1000;
+  return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}.${String(milliseconds).padStart(3,'0')}`;
+}
+
+function updateDisplay() {
+  const now = Date.now();
+  elapsed = now - startTime;
+  display.textContent = formatTime(elapsed);
+}
+
+document.getElementById("start").addEventListener("click", () => {
+  startTime = Date.now() - elapsed;
+  clearInterval(timerInterval);
+  timerInterval = setInterval(updateDisplay, 10);
+});
+
+document.getElementById("stop").addEventListener("click", () => {
+  clearInterval(timerInterval);
+});
+
+document.getElementById("reset").addEventListener("click", () => {
+  clearInterval(timerInterval);
+  elapsed = 0;
+  display.textContent = "00:00.000";
+});
+</script>
+
+</body>
+</html>
