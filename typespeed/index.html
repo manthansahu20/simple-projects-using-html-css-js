@@ -1,1 +1,52 @@
 
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Typing Speed Test</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>Typing Speed Test</h1>
+
+    <section class="controls">
+      <label for="timeSelect">Test Time:</label>
+      <select id="timeSelect">
+        <option value="15">15 sec</option>
+        <option value="30" selected>30 sec</option>
+        <option value="60">60 sec</option>
+      </select>
+
+      <button id="newTextBtn">New Text</button>
+      <button id="restartBtn">Restart</button>
+    </section>
+
+    <section class="test-area">
+      <div id="textDisplay" class="text-display" tabindex="0"></div>
+      <textarea id="inputArea" placeholder="Start typing here..." autofocus></textarea>
+    </section>
+
+    <section class="stats">
+      <div>⏱️ Time Left: <span id="timeLeft">30</span>s</div>
+      <div>✍️ WPM: <span id="wpm">0</span></div>
+      <div>✅ Correct: <span id="correctChars">0</span></div>
+      <div>❌ Incorrect: <span id="incorrectChars">0</span></div>
+      <div>🔢 Typed: <span id="typedChars">0</span></div>
+      <div>🎯 Accuracy: <span id="accuracy">100</span>%</div>
+    </section>
+
+    <section class="history">
+      <h3>Recent Results</h3>
+      <ul id="historyList"></ul>
+    </section>
+
+    <footer>
+      <small>Built with HTML • CSS • JS — Customize the text pool in <code>script.js</code></small>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
