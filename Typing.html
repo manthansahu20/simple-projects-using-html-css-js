@@ -1,179 +1,190 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Typing Speed Test Game</title>
+<title>Type With Me</title>
+
 <style>
-  body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #1f1c2c, #928dab);
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #1d2671, #c33764);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
 
-  .container {
-    background: rgba(0,0,0,0.6);
-    padding: 30px;
-    border-radius: 20px;
-    text-align: center;
-    width: 90%;
-    max-width: 600px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
-  }
+.card {
+  width: 90%;
+  max-width: 750px;
+  padding: 25px;
+  Remember
+  background: rgba(255,255,255,.08);
+  backdrop-filter: blur(12px);
+  border-radius: 15px;
+}
 
-  h1 {
-    margin-bottom: 20px;
-    font-size: 2em;
-    color: #ffcc00;
-    text-shadow: 2px 2px 5px #000;
-  }
+.hidden { display: none }
 
-  #wordDisplay {
-    font-size: 2em;
-    margin: 20px 0;
-    min-height: 60px;
-    color: #00ffcc;
-    text-shadow: 1px 1px 3px #000;
-  }
+h1 { text-align: center }
 
-  input {
-    padding: 15px;
-    font-size: 1.2em;
-    border-radius: 10px;
-    border: none;
-    width: 80%;
-    margin-bottom: 20px;
-  }
+input, button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+}
 
-  button {
-    padding: 10px 25px;
-    font-size: 1em;
-    border: none;
-    border-radius: 10px;
-    background: #ffcc00;
-    color: #000;
-    cursor: pointer;
-    transition: 0.3s;
-    font-weight: bold;
-  }
+button {
+  cursor: pointer;
+  background: #ff4b2b;
+  color: white;
+  font-weight: bold;
+}
 
-  button:hover {
-    background: #ffd633;
-    transform: scale(1.05);
-  }
+button:hover { opacity: .85 }
 
-  .info {
-    display: flex;
-    justify-content: space-around;
-    margin-bottom: 20px;
-  }
+.stats {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
 
-  .info div {
-    font-size: 1.2em;
-    color: #fff;
-    text-shadow: 1px 1px 3px #000;
-  }
+#text {
+  background: rgba(0,0,0,.3);
+  padding: 15px;
+  border-radius: 10px;
+  line-height: 1.8;
+  min-height: 100px;
+}
 
-  .score {
-    font-size: 1.5em;
-    margin-top: 20px;
-    color: #00ff99;
-  }
+#text span.correct { color: #4caf50 }
+#text span.wrong { color: #f44336 }
+#text span.active {
+  text-decoration: underline;
+}
 
+textarea {
+  height: 120px;
+  resize: none;
+}
 </style>
 </head>
+
 <body>
 
-<div class="container">
-  <h1>Typing Speed Test</h1>
+<div class="card" id="start">
+  <h1>Type With Me</h1>
+  <input id="name" placeholder="Enter your name">
+  <button onclick="goModes()">Start</button>
+</div>
 
-  <div class="info">
-    <div>Time Left: <span id="time">60</span>s</div>
-    <div>Score: <span id="score">0</span></div>
+<div class="card hidden" id="modes">
+  <h1>Select Mode</h1>
+  <button onclick="startParagraph()">Paragraph Mode</button>
+</div>
+
+<div class="card hidden" id="game">
+  <h3 id="player"></h3>
+
+  <div class="stats">
+    <div>⏱ <span id="time">0</span>s</div>
+    <div>⚡ <span id="wpm">0</span> WPM</div>
+    <div>🎯 <span id="acc">100</span>%</div>
+    <div>❌ <span id="err">0</span></div>
   </div>
 
-  <div id="wordDisplay">Press Start!</div>
-  <input type="text" id="inputField" placeholder="Type the word here..." disabled>
-  <br>
-  <button id="startBtn">Start Game</button>
+  <div id="text"></div>
 
-  <div class="score" id="finalScore"></div>
+  <textarea id="input" placeholder="Start typing..."></textarea>
+
+  <button onclick="restart()">Restart</button>
 </div>
 
 <script>
-const words = [
-  "javascript", "developer", "keyboard", "function", "variable",
-  "coding", "program", "algorithm", "interface", "object",
-  "challenge", "performance", "application", "document", "element",
-  "style", "browser", "event", "syntax", "dynamic",
-  "animation", "modern", "speed", "typing", "score"
-];
+const paragraph = 
+"Typing fast and accurately is a valuable skill that helps improve efficiency and confidence while working on computers.";
 
-let time = 60;
-let score = 0;
-let currentWord = "";
-let timer;
+let startTime = null, timer;
+const input = document.getElementById("input");
+const textDiv = document.getElementById("text");
 
-const wordDisplay = document.getElementById("wordDisplay");
-const inputField = document.getElementById("inputField");
-const timeEl = document.getElementById("time");
-const scoreEl = document.getElementById("score");
-const startBtn = document.getElementById("startBtn");
-const finalScore = document.getElementById("finalScore");
-
-function randomWord() {
-    return words[Math.floor(Math.random() * words.length)];
+function goModes() {
+  if (!name.value) return alert("Enter name");
+  start.classList.add("hidden");
+  modes.classList.remove("hidden");
 }
 
-function nextWord() {
-    currentWord = randomWord();
-    wordDisplay.textContent = currentWord;
-    inputField.value = "";
+function startParagraph() {
+  modes.classList.add("hidden");
+  game.classList.remove("hidden");
+  player.innerText = "Player: " + name.value;
+
+  textDiv.innerHTML = "";
+  paragraph.split("").forEach(c => {
+    const span = document.createElement("span");
+    span.innerText = c;
+    textDiv.appendChild(span);
+  });
+
+  input.value = "";
+  input.focus();
+  startTime = null;
 }
 
-function startGame() {
-    score = 0;
-    time = 60;
-    scoreEl.textContent = score;
-    timeEl.textContent = time;
-    finalScore.textContent = "";
-    inputField.disabled = false;
-    inputField.focus();
-    startBtn.disabled = true;
-    nextWord();
+input.addEventListener("input", () => {
+  if (!startTime) {
+    startTime = new Date();
+    timer = setInterval(updateTime, 1000);
+  }
 
-    timer = setInterval(() => {
-        time--;
-        timeEl.textContent = time;
-        if(time === 0){
-            clearInterval(timer);
-            endGame();
-        }
-    }, 1000);
-}
+  const chars = textDiv.querySelectorAll("span");
+  const typed = input.value.split("");
+  let correct = 0, errors = 0;
 
-function endGame() {
-    inputField.disabled = true;
-    wordDisplay.textContent = "Game Over!";
-    finalScore.textContent = "Your final score: " + score;
-    startBtn.disabled = false;
-}
-
-inputField.addEventListener("input", () => {
-    if(inputField.value.trim() === currentWord){
-        score++;
-        scoreEl.textContent = score;
-        nextWord();
+  chars.forEach((char, i) => {
+    char.className = "";
+    if (typed[i] == null) {
+      if (i === typed.length) char.classList.add("active");
+    } else if (typed[i] === char.innerText) {
+      char.classList.add("correct");
+      correct++;
+    } else {
+      char.classList.add("wrong");
+      errors++;
     }
+  });
+
+  err.innerText = errors;
+  const accVal = typed.length
+    ? Math.round((correct / typed.length) * 100)
+    : 100;
+  acc.innerText = accVal;
+
+  const timeMin = (new Date() - startTime) / 60000;
+  wpm.innerText = timeMin
+    ? Math.round((typed.length / 5) / timeMin)
+    : 0;
+
+  if (typed.join("") === paragraph) {
+    clearInterval(timer);
+    alert("✅ Completed!");
+  }
 });
 
-startBtn.addEventListener("click", startGame);
+function updateTime() {
+  time.innerText =
+    Math.floor((new Date() - startTime) / 1000);
+}
+
+function restart() {
+  clearInterval(timer);
+  startParagraph();
+}
 </script>
 
 </body>
