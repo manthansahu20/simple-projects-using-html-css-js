@@ -1,158 +1,113 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Code Typing Test</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Game & Project Hub</title>
 
 <style>
-:root{
-  --bg:#0b0f14;
-  --card:#0f1720;
-  --accent:#7dd3fc;
-  --muted:#9aa6b2;
-}
 body{
   margin:0;
-  font-family: system-ui, sans-serif;
-  background:linear-gradient(180deg,#071025,#07151a);
+  font-family:system-ui, sans-serif;
+  background:#0b0f14;
   color:#e6eef6;
 }
 .container{
-  max-width:900px;
+  max-width:1100px;
   margin:auto;
   padding:24px;
 }
-h1{text-align:center;margin-bottom:8px}
-.subtitle{text-align:center;color:var(--muted);margin-bottom:20px}
-
+h1{text-align:center;margin-bottom:6px}
+.subtitle{text-align:center;color:#9aa6b2;margin-bottom:24px}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:16px;
+}
 .card{
-  background:var(--card);
+  background:#0f1720;
   border:1px solid rgba(255,255,255,0.05);
   border-radius:12px;
   padding:16px;
-}
-
-pre{
-  background:#020617;
-  padding:14px;
-  border-radius:10px;
-  white-space:pre-wrap;
-  font-size:14px;
-  overflow:auto;
-}
-
-textarea{
-  width:100%;
-  min-height:200px;
-  margin-top:14px;
-  background:#020617;
-  color:#e6eef6;
-  border:1px solid #1e293b;
-  border-radius:10px;
-  padding:12px;
-  font-family: monospace;
-  font-size:14px;
-}
-
-.controls{
   display:flex;
-  gap:10px;
+  flex-direction:column;
+  justify-content:space-between;
+  transition:transform .2s;
+}
+.card:hover{ transform:translateY(-6px); }
+.card h3{ margin:0 0 6px; }
+.card p{ margin:0;font-size:13px;color:#9aa6b2; }
+.card a{
   margin-top:14px;
-}
-button{
-  flex:1;
-  padding:10px;
+  text-decoration:none;
+  background:#38bdf8;
+  color:#000;
+  padding:8px;
+  text-align:center;
   border-radius:8px;
-  border:0;
-  background:var(--accent);
   font-weight:700;
-  cursor:pointer;
 }
-
-.result{
-  margin-top:16px;
-  display:none;
-  background:#020617;
-  padding:14px;
-  border-radius:10px;
-}
-.small{color:var(--muted);font-size:13px}
+footer{ text-align:center;margin-top:30px;font-size:13px;color:#9aa6b2; }
 </style>
 </head>
 
 <body>
 <div class="container">
-  <h1>⌨ Code Typing Test</h1>
-  <p class="subtitle">Type the code exactly as shown</p>
+
+<h1>🎮 My Projects & Games</h1>
+<p class="subtitle">Choose any project to open</p>
+
+<div class="grid">
 
   <div class="card">
-    <p class="small">Question:</p>
-    <pre id="question"></pre>
-
-    <textarea id="answer" placeholder="Start typing code here..."></textarea>
-
-    <div class="controls">
-      <button onclick="submitTest()">Submit</button>
-      <button onclick="newQuestion()">New Question</button>
-    </div>
-
-    <div class="result" id="result"></div>
+    <div><h3>Code Typing Test</h3><p>Practice typing programming code</p></div>
+    <a href="codetyping/index.html">Open</a>
   </div>
+
+  <div class="card">
+    <div><h3>Music Player</h3><p>Play and control audio tracks</p></div>
+    <a href="Music.player.html">Open</a>
+  </div>
+
+  <div class="card">
+    <div><h3>QR Code Generator</h3><p>Create QR codes from text</p></div>
+    <a href="QRCODE.html">Open</a>
+  </div>
+
+  <div class="card">
+    <div><h3>Typing Test</h3><p>Check typing speed and accuracy</p></div>
+    <a href="typespeed/index.html">Open</a>
+  </div>
+
+  <div class="card">
+    <div><h3>Analog Watch</h3><p>Simple analog clock</p></div>
+    <a href="analogwatch.html">Open</a>
+  </div>
+
+  <div class="card">
+    <div><h3>Color Picker</h3><p>Pick colors and see hex/RGB values</p></div>
+    <a href="colorpicker.html">Open</a>
+  </div>
+
+  <div class="card">
+    <div><h3>Countdown Timer</h3><p>Start a countdown to a target time</p></div>
+    <a href="countdown.html">Open</a>
+  </div>
+
+  <div class="card">
+    <div><h3>Password Generator</h3><p>Create strong passwords</p></div>
+    <a href="password.html">Open</a>
+  </div>
+
+  <div class="card">
+    <div><h3>Stopwatch</h3><p>Start, stop and lap timer</p></div>
+    <a href="stopwatch.html">Open</a>
+  </div>
+
 </div>
 
-<script>
-const questions = [
-`function add(a, b) {
-  return a + b;
-}`,
+<footer>All projects are inside the same repository</footer>
 
-`for (let i = 1; i <= 5; i++) {
-  console.log(i);
-}`,
-
-`const greet = (name) => {
-  return "Hello " + name;
-};`,
-
-`let sum = 0;
-for (let i = 0; i < 10; i++) {
-  sum += i;
-}`
-];
-
-let current = "";
-
-function newQuestion(){
-  current = questions[Math.floor(Math.random()*questions.length)];
-  document.getElementById("question").textContent = current;
-  document.getElementById("answer").value = "";
-  document.getElementById("result").style.display = "none";
-}
-
-function submitTest(){
-  const typed = document.getElementById("answer").value;
-  let errors = 0;
-  const len = Math.max(typed.length, current.length);
-
-  for(let i=0;i<len;i++){
-    if(typed[i] !== current[i]) errors++;
-  }
-
-  const accuracy = Math.max(0, Math.round(((current.length - errors) / current.length) * 100));
-
-  const result = document.getElementById("result");
-  result.style.display = "block";
-  result.innerHTML = `
-    <h3>Result</h3>
-    <p>Characters: ${current.length}</p>
-    <p>Errors: ${errors}</p>
-    <p>Accuracy: <b>${accuracy}%</b></p>
-    <p>Marks: <b>${accuracy}/100</b></p>
-  `;
-}
-
-newQuestion();
-</script>
+</div>
 </body>
 </html>
