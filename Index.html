@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Projects — Menu</title>
+  <style>
+    :root{
+      --bg:#0b0f14; --card:#0f1720; --muted:#9aa6b2; --accent:#7dd3fc;
+      --glass: rgba(255,255,255,0.03);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:linear-gradient(180deg,#071025 0%, #07151a 100%);
+      color:#e6eef6; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      padding:28px;
+    }
+    .container{max-width:1100px;margin:0 auto;}
+    header{display:flex;gap:16px;align-items:center;justify-content:space-between;margin-bottom:22px}
+    .title{display:flex;gap:12px;align-items:center}
+    .logo{
+      width:56px;height:56px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);
+      display:grid;place-items:center;font-weight:700;font-size:20px;color:white;
+      box-shadow: 0 6px 18px rgba(14,165,233,0.12), inset 0 -6px 18px rgba(255,255,255,0.03);
+    }
+    h1{font-size:20px;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+    .controls{display:flex;gap:10px;align-items:center}
+    .search{
+      background:var(--card); border:1px solid rgba(255,255,255,0.03); padding:8px 12px; border-radius:10px;
+      display:flex;align-items:center;gap:8px;min-width:260px;
+    }
+    .search input{
+      background:transparent;border:0;color:inherit;font-size:14px;outline:none;width:100%;
+    }
+    .grid{
+      display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:18px;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+      border:1px solid rgba(255,255,255,0.03);
+      padding:14px;border-radius:12px; min-height:110px; display:flex;flex-direction:column;justify-content:space-between;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .card:hover{ transform: translateY(-6px); box-shadow: 0 10px 30px rgba(2,6,23,0.6); }
+    .card h3{margin:0;font-size:16px}
+    .card p{margin:6px 0 0;color:var(--muted);font-size:13px}
+    .meta{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+    .btn{
+      background:transparent;border:1px solid rgba(255,255,255,0.06);padding:6px 10px;border-radius:8px;color:var(--accent);text-decoration:none;font-weight:600;font-size:13px;
+    }
+    .small{font-size:12px;color:var(--muted)}
+    footer{margin-top:28px;color:var(--muted);font-size:13px;text-align:center}
+    /* responsive */
+    @media (max-width:520px){
+      .search{min-width:unset;width:100%}
+      header{flex-direction:column;align-items:flex-start;gap:12px}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="title">
+        <div class="logo">SP</div>
+        <div>
+          <h1>Simple Projects — Menu</h1>
+          <p class="lead">Choose any project to open. (Click card or "Open")</p>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="search" role="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden style="opacity:.8">
+            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
+            <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></circle>
+          </svg>
+          <input id="q" type="search" placeholder="Search projects (e.g., stopwatch, QR, music...)" aria-label="Search projects">
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div id="grid" class="grid">
+        <!-- Card template entries -->
+        <article class="card" data-keywords="music player audio song player">
+          <div>
+            <h3>Music Player</h3>
+            <p>Play/pause and controls for audio tracks.</p>
+          </div>
+          <div class="meta">
+            <span class="small">Music.player.html</span>
+            <a class="btn" href="Music.player.html" target="_blank" rel="noopener">Open</a>
+          </div>
+        </article>
+
+        <article class="card" data-keywords="qrcode qr code generator scanner">
+          <div>
+            <h3>QR Code</h3>
+            <p>Generate QR codes from text/URLs.</p>
+          </div>
+          <div class="meta">
+            <span class="small">QRCODE.html</span>
+            <a class="btn" href="QRCODE.html" target="_blank" rel="noopener">Open</a>
+          </div>
+        </article>
+
+        <article class="card" data-keywords="analog watch clock time">
+          <div>
+            <h3>Analog Watch</h3>
+            <p>A neat analog clock display.</p>
+          </div>
+          <div class="meta">
+            <span class="small">analogwatch.html</span>
+            <a class="btn" href="analogwatch.html" target="_blank" rel="noopener">Open</a>
+          </div>
+        </article>
+
+        <article class="card" data-keywords="color picker colorpicker color select">
+          <div>
+            <h3>Color Picker</h3>
+            <p>Pick colors and view hex/RGB values.</p>
+          </div>
+          <div class="meta">
+            <span class="small">colorpicker.html</span>
+            <a class="btn" href="colorpicker.html" target="_blank" rel="noopener">Open</a>
+          </div>
+        </article>
+
+        <article class="card" data-keywords="countdown timer time left">
+          <div>
+            <h3>Countdown Timer</h3>
+            <p>Start a countdown to a target time.</p>
+          </div>
+          <div class="meta">
+            <span class="small">countdown.html</span>
+            <a class="btn" href="countdown.html" target="_blank" rel="noopener">Open</a>
+          </div>
+        </article>
+
+        <article class="card" data-keywords="typing test typespeed speed typing">
+          <div>
+            <h3>Typing Test</h3>
+            <p>Measure words-per-minute and accuracy.</p>
+          </div>
+          <div class="meta">
+            <span class="small">typespeed/</span>
+            <a class="btn" href="typespeed/index.html" target="_blank" rel="noopener">Open</a>
+          </div>
+        </article>
+
+        <article class="card" data-keywords="password generator password strength">
+          <div>
+            <h3>Password Tool</h3>
+            <p>Generate and test password strength.</p>
+          </div>
+          <div class="meta">
+            <span class="small">password.html</span>
+            <a class="btn" href="password.html" target="_blank" rel="noopener">Open</a>
+          </div>
+        </article>
+
+        <article class="card" data-keywords="stopwatch timer lap stopwatch">
+          <div>
+            <h3>Stopwatch</h3>
+            <p>Start/stop and record laps.</p>
+          </div>
+          <div class="meta">
+            <span class="small">stopwatch.html</span>
+            <a class="btn" href="stopwatch.html" target="_blank" rel="noopener">Open</a>
+          </div>
+        </article>
+
+        <!-- Add more cards here if you have more files -->
+      </div>
+    </main>
+
+    <footer>
+      If any link doesn't open, check the filename (case-sensitive) in your repo and update the href accordingly.
+    </footer>
+  </div>
+
+  <script>
+    // Simple client-side search/filter
+    (function(){
+      const q = document.getElementById('q');
+      const cards = Array.from(document.querySelectorAll('.card'));
+
+      function normalize(s){ return (s||'').toLowerCase(); }
+
+      function filter(){
+        const term = normalize(q.value).trim();
+        if(!term){
+          cards.forEach(c=>c.style.display='flex');
+          return;
+        }
+        cards.forEach(card=>{
+          const title = normalize(card.querySelector('h3').textContent);
+          const desc = normalize(card.querySelector('p').textContent);
+          const meta = normalize(card.dataset.keywords || '');
+          const hay = title + ' ' + desc + ' ' + meta;
+          card.style.display = hay.includes(term) ? 'flex' : 'none';
+        });
+      }
+
+      q.addEventListener('input', filter);
+
+      // Optional: allow pressing Enter while focused on card to open link
+      document.getElementById('grid').addEventListener('keydown', function(e){
+        if(e.key === 'Enter'){
+          const tgt = e.target.closest('.card');
+          if(tgt){
+            const a = tgt.querySelector('a.btn');
+            if(a) window.open(a.href, '_blank');
+          }
+        }
+      });
+
+      // make whole card clickable (open in new tab)
+      cards.forEach(card=>{
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', function(e){
+          // avoid intercepting button clicks (they already open)
+          if(e.target.closest('a')) return;
+          const a = card.querySelector('a.btn');
+          if(a) window.open(a.href, '_blank');
+        });
+      });
+
+    })();
+  </script>
+</body>
+</html>
