@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,12 +7,12 @@
 <style>
 body {
   margin: 0;
-  font-family: 'Segoe UI', sans-serif;
+  font-family: Arial, sans-serif;
   background: linear-gradient(135deg, #1d2671, #c33764);
   height: 100vh;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   color: white;
 }
 
@@ -21,8 +20,7 @@ body {
   width: 90%;
   max-width: 750px;
   padding: 25px;
-  Remember
-  background: rgba(255,255,255,.08);
+  background: rgba(255,255,255,.1);
   backdrop-filter: blur(12px);
   border-radius: 15px;
 }
@@ -31,27 +29,26 @@ body {
 
 h1 { text-align: center }
 
-input, button {
+input, textarea, button {
   width: 100%;
   padding: 12px;
-  margin-top: 10px;
+  margin-top: 12px;
   border-radius: 8px;
   border: none;
+  font-size: 16px;
 }
 
 button {
-  cursor: pointer;
   background: #ff4b2b;
   color: white;
   font-weight: bold;
+  cursor: pointer;
 }
-
-button:hover { opacity: .85 }
 
 .stats {
   display: flex;
   justify-content: space-between;
-  margin: 10px 0;
+  margin: 15px 0;
 }
 
 #text {
@@ -59,18 +56,14 @@ button:hover { opacity: .85 }
   padding: 15px;
   border-radius: 10px;
   line-height: 1.8;
-  min-height: 100px;
+  min-height: 120px;
+  font-size: 18px;
 }
 
 #text span.correct { color: #4caf50 }
 #text span.wrong { color: #f44336 }
 #text span.active {
   text-decoration: underline;
-}
-
-textarea {
-  height: 120px;
-  resize: none;
 }
 </style>
 </head>
@@ -79,13 +72,13 @@ textarea {
 
 <div class="card" id="start">
   <h1>Type With Me</h1>
-  <input id="name" placeholder="Enter your name">
-  <button onclick="goModes()">Start</button>
+  <input id="nameInput" placeholder="Enter your name">
+  <button id="startBtn">Start</button>
 </div>
 
 <div class="card hidden" id="modes">
   <h1>Select Mode</h1>
-  <button onclick="startParagraph()">Paragraph Mode</button>
+  <button id="paraBtn">Paragraph Mode</button>
 </div>
 
 <div class="card hidden" id="game">
@@ -93,7 +86,7 @@ textarea {
 
   <div class="stats">
     <div>⏱ <span id="time">0</span>s</div>
-    <div>⚡ <span id="wpm">0</span> WPM</div>
+    <div>⚡ <span id="wpm">0</span></div>
     <div>🎯 <span id="acc">100</span>%</div>
     <div>❌ <span id="err">0</span></div>
   </div>
@@ -101,90 +94,93 @@ textarea {
   <div id="text"></div>
 
   <textarea id="input" placeholder="Start typing..."></textarea>
-
-  <button onclick="restart()">Restart</button>
+  <button id="restartBtn">Restart</button>
 </div>
 
 <script>
-const paragraph = 
-"Typing fast and accurately is a valuable skill that helps improve efficiency and confidence while working on computers.";
+const paragraph =
+"Typing fast and accurately is a valuable skill that improves productivity and confidence.";
 
-let startTime = null, timer;
-const input = document.getElementById("input");
+const start = document.getElementById("start");
+const modes = document.getElementById("modes");
+const game = document.getElementById("game");
+const nameInput = document.getElementById("nameInput");
+const player = document.getElementById("player");
 const textDiv = document.getElementById("text");
+const input = document.getElementById("input");
 
-function goModes() {
-  if (!name.value) return alert("Enter name");
+let startTime = null;
+let timer;
+
+document.getElementById("startBtn").onclick = () => {
+  if (!nameInput.value) return alert("Enter name");
   start.classList.add("hidden");
   modes.classList.remove("hidden");
-}
+};
 
-function startParagraph() {
+document.getElementById("paraBtn").onclick = () => {
   modes.classList.add("hidden");
   game.classList.remove("hidden");
-  player.innerText = "Player: " + name.value;
+  player.innerText = "Player: " + nameInput.value;
+  startGame();
+};
 
+document.getElementById("restartBtn").onclick = startGame;
+
+function startGame() {
+  clearInterval(timer);
+  startTime = null;
+  input.value = "";
   textDiv.innerHTML = "";
-  paragraph.split("").forEach(c => {
+  document.getElementById("time").innerText = 0;
+  document.getElementById("wpm").innerText = 0;
+  document.getElementById("acc").innerText = 100;
+  document.getElementById("err").innerText = 0;
+
+  paragraph.split("").forEach(ch => {
     const span = document.createElement("span");
-    span.innerText = c;
+    span.innerText = ch;
     textDiv.appendChild(span);
   });
 
-  input.value = "";
   input.focus();
-  startTime = null;
 }
 
 input.addEventListener("input", () => {
   if (!startTime) {
     startTime = new Date();
-    timer = setInterval(updateTime, 1000);
+    timer = setInterval(() => {
+      document.getElementById("time").innerText =
+        Math.floor((new Date() - startTime) / 1000);
+    }, 1000);
   }
 
-  const chars = textDiv.querySelectorAll("span");
+  const spans = textDiv.querySelectorAll("span");
   const typed = input.value.split("");
   let correct = 0, errors = 0;
 
-  chars.forEach((char, i) => {
-    char.className = "";
+  spans.forEach((span, i) => {
+    span.className = "";
     if (typed[i] == null) {
-      if (i === typed.length) char.classList.add("active");
-    } else if (typed[i] === char.innerText) {
-      char.classList.add("correct");
+      if (i === typed.length) span.classList.add("active");
+    } else if (typed[i] === span.innerText) {
+      span.classList.add("correct");
       correct++;
     } else {
-      char.classList.add("wrong");
+      span.classList.add("wrong");
       errors++;
     }
   });
 
-  err.innerText = errors;
-  const accVal = typed.length
-    ? Math.round((correct / typed.length) * 100)
-    : 100;
-  acc.innerText = accVal;
+  document.getElementById("err").innerText = errors;
 
-  const timeMin = (new Date() - startTime) / 60000;
-  wpm.innerText = timeMin
-    ? Math.round((typed.length / 5) / timeMin)
-    : 0;
+  const acc = typed.length ? Math.round((correct / typed.length) * 100) : 100;
+  document.getElementById("acc").innerText = acc;
 
-  if (typed.join("") === paragraph) {
-    clearInterval(timer);
-    alert("✅ Completed!");
-  }
+  const minutes = (new Date() - startTime) / 60000;
+  document.getElementById("wpm").innerText =
+    minutes ? Math.round((typed.length / 5) / minutes) : 0;
 });
-
-function updateTime() {
-  time.innerText =
-    Math.floor((new Date() - startTime) / 1000);
-}
-
-function restart() {
-  clearInterval(timer);
-  startParagraph();
-}
 </script>
 
 </body>
