@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typing Speed Test Game</title>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1f1c2c, #928dab);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .container {
+    background: rgba(0,0,0,0.6);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  }
+
+  h1 {
+    margin-bottom: 20px;
+    font-size: 2em;
+    color: #ffcc00;
+    text-shadow: 2px 2px 5px #000;
+  }
+
+  #wordDisplay {
+    font-size: 2em;
+    margin: 20px 0;
+    min-height: 60px;
+    color: #00ffcc;
+    text-shadow: 1px 1px 3px #000;
+  }
+
+  input {
+    padding: 15px;
+    font-size: 1.2em;
+    border-radius: 10px;
+    border: none;
+    width: 80%;
+    margin-bottom: 20px;
+  }
+
+  button {
+    padding: 10px 25px;
+    font-size: 1em;
+    border: none;
+    border-radius: 10px;
+    background: #ffcc00;
+    color: #000;
+    cursor: pointer;
+    transition: 0.3s;
+    font-weight: bold;
+  }
+
+  button:hover {
+    background: #ffd633;
+    transform: scale(1.05);
+  }
+
+  .info {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+  }
+
+  .info div {
+    font-size: 1.2em;
+    color: #fff;
+    text-shadow: 1px 1px 3px #000;
+  }
+
+  .score {
+    font-size: 1.5em;
+    margin-top: 20px;
+    color: #00ff99;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Typing Speed Test</h1>
+
+  <div class="info">
+    <div>Time Left: <span id="time">60</span>s</div>
+    <div>Score: <span id="score">0</span></div>
+  </div>
+
+  <div id="wordDisplay">Press Start!</div>
+  <input type="text" id="inputField" placeholder="Type the word here..." disabled>
+  <br>
+  <button id="startBtn">Start Game</button>
+
+  <div class="score" id="finalScore"></div>
+</div>
+
+<script>
+const words = [
+  "javascript", "developer", "keyboard", "function", "variable",
+  "coding", "program", "algorithm", "interface", "object",
+  "challenge", "performance", "application", "document", "element",
+  "style", "browser", "event", "syntax", "dynamic",
+  "animation", "modern", "speed", "typing", "score"
+];
+
+let time = 60;
+let score = 0;
+let currentWord = "";
+let timer;
+
+const wordDisplay = document.getElementById("wordDisplay");
+const inputField = document.getElementById("inputField");
+const timeEl = document.getElementById("time");
+const scoreEl = document.getElementById("score");
+const startBtn = document.getElementById("startBtn");
+const finalScore = document.getElementById("finalScore");
+
+function randomWord() {
+    return words[Math.floor(Math.random() * words.length)];
+}
+
+function nextWord() {
+    currentWord = randomWord();
+    wordDisplay.textContent = currentWord;
+    inputField.value = "";
+}
+
+function startGame() {
+    score = 0;
+    time = 60;
+    scoreEl.textContent = score;
+    timeEl.textContent = time;
+    finalScore.textContent = "";
+    inputField.disabled = false;
+    inputField.focus();
+    startBtn.disabled = true;
+    nextWord();
+
+    timer = setInterval(() => {
+        time--;
+        timeEl.textContent = time;
+        if(time === 0){
+            clearInterval(timer);
+            endGame();
+        }
+    }, 1000);
+}
+
+function endGame() {
+    inputField.disabled = true;
+    wordDisplay.textContent = "Game Over!";
+    finalScore.textContent = "Your final score: " + score;
+    startBtn.disabled = false;
+}
+
+inputField.addEventListener("input", () => {
+    if(inputField.value.trim() === currentWord){
+        score++;
+        scoreEl.textContent = score;
+        nextWord();
+    }
+});
+
+startBtn.addEventListener("click", startGame);
+</script>
+
+</body>
+</html>
