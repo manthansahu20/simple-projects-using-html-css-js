@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Code Typing Game — Type With Me (Code Mode)</title>
+<style>
+  :root{
+    --bg:#0f1724; --card:#0b1220; --accent:#6ee7b7; --muted:#94a3b8;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: linear-gradient(180deg,#071022 0%, #0f1b2b 100%);
+    color:#e6eef6; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .wrap{width:100%; max-width:980px;}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:18px; box-shadow:0 8px 30px rgba(2,6,23,0.7);}
+  h1{margin:0 0 12px 0; font-size:20px}
+  .row{display:flex; gap:12px; align-items:center;}
+  .topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; gap:12px; flex-wrap:wrap}
+  input[type="text"]{padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,.06); background:transparent; color:inherit; width:220px}
+  select, button{padding:8px 10px; border-radius:8px; border:none; cursor:pointer}
+  button{background:var(--accent); color:#052023; font-weight:600}
+  .main{display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:12px}
+  .panel{background:#071126; padding:12px; border-radius:10px; min-height:220px; overflow:auto}
+  .prompt{white-space:pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace; font-size:13px; color:var(--muted)}
+  textarea#codeInput{
+    width:100%; min-height:240px; resize:vertical; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", "Courier New", monospace;
+    font-size:13px; padding:12px; border-radius:8px; border:1px solid rgba(255,255,255,.04); background:#001018; color:#dbeafe;
+    caret-color:var(--accent); line-height:1.5;
+  }
+  .stats{display:flex; gap:8px; margin-top:8px; flex-wrap:wrap}
+  .stat{background:rgba(255,255,255,0.02); padding:8px 10px; border-radius:8px; font-size:13px; color:var(--muted)}
+  .controls{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
+  .resultBox{margin-top:12px; padding:12px; border-radius:8px; background: linear-gradient(180deg, rgba(110,231,183,0.06), rgba(255,255,255,0.02)); color:#022723}
+  .diff{font-family: ui-monospace, monospace; font-size:13px; white-space:pre-wrap; line-height:1.5; padding:10px; border-radius:8px; background:#00121a; color:#cbd5e1; overflow:auto}
+  .diff .correct{color: #86efac}
+  .diff .wrong{color: #fda4af; text-decoration: underline wavy #fca5a5}
+  .muted{color:var(--muted)}
+  .small{font-size:12px}
+  .badge{background:rgba(255,255,255,0.03); padding:6px 8px; border-radius:6px; font-weight:600}
+  .footer{margin-top:12px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="topbar">
+        <div style="display:flex;gap:12px;align-items:center;">
+          <h1>Type With Me — <span class="muted">Code Mode</span></h1>
+          <div class="badge small">Single question at a time</div>
+        </div>
+
+        <div class="row">
+          <input id="playerName" placeholder="Your name (optional)" />
+          <select id="difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+          <button id="startBtn">Start / Next Question</button>
+        </div>
+      </div>
+
+      <div class="main">
+        <!-- Left: prompt -->
+        <div class="panel">
+          <div class="muted small">Question</div>
+          <div id="prompt" class="prompt" style="margin-top:8px">Press <b>Start / Next Question</b> to load a code challenge.</div>
+
+          <div class="stats" style="margin-top:12px">
+            <div class="stat">⏱ Time: <span id="time">0s</span></div>
+            <div class="stat">⚡ CPM: <span id="cpm">0</span></div>
+            <div class="stat">🎯 Accuracy: <span id="accuracy">100</span>%</div>
+            <div class="stat">❌ Errors: <span id="errors">0</span></div>
+            <div class="stat">📥 Paste: <span id="pasteCount">0</span></div>
+          </div>
+
+          <div class="controls">
+            <button id="showAnsBtn">Show Developer Answer</button>
+            <button id="submitBtn" style="background:#ffd166;color:#062018">Submit</button>
+            <button id="clearBtn" style="background:transparent;border:1px solid rgba(255,255,255,.04);color:var(--muted)">Clear</button>
+          </div>
+
+          <div id="resultArea" class="resultBox hidden" style="display:none"></div>
+        </div>
+
+        <!-- Right: typing area -->
+        <div class="panel">
+          <div class="muted small">Type the expected code below</div>
+          <textarea id="codeInput" placeholder="Type the developer's answer here..." spellcheck="false" autocomplete="off"></textarea>
+
+          <div class="footer">
+            <div class="muted small">Tip: Use TAB to insert indent. Copy/paste is detected and penalized.</div>
+            <div style="display:flex;gap:8px">
+              <button id="submitBtn2" style="background:#ffd166;color:#062018">Submit</button>
+              <button id="restartBtn" style="background:transparent;border:1px solid rgba(255,255,255,.04);color:var(--muted)">Restart (new)</button>
+            </div>
+          </div>
+
+          <div style="margin-top:12px">
+            <div class="muted small">Developer Answer (hidden by default)</div>
+            <pre id="devAnswer" class="diff" style="display:none; margin-top:8px"></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- hidden debug / storage -->
+      <div style="margin-top:12px; font-size:13px" class="muted small">
+        Questions available: <span id="qCount">0</span>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ====== Questions: each has prompt (description) and answer (exact expected code) ======
+const QUESTIONS = [
+  {
+    id: "q1",
+    difficulty: "easy",
+    prompt: `Write a JavaScript function named 'add' that returns the sum of two numbers a and b.`,
+    answer: `function add(a, b) {
+  return a + b;
+}`
+  },
+  {
+    id: "q2",
+    difficulty: "easy",
+    prompt: `Write a function 'isEven' that returns true if a number n is even.`,
+    answer: `function isEven(n) {
+  return n % 2 === 0;
+}`
+  },
+  {
+    id: "q3",
+    difficulty: "medium",
+    prompt: `Return a new array containing only the unique elements from the input array 'arr'. Name the function 'unique'.`,
+    answer: `function unique(arr) {
+  return [...new Set(arr)];
+}`
+  },
+  {
+    id: "q4",
+    difficulty: "medium",
+    prompt: `Write 'factorial' function (recursive) that returns factorial of n.`,
+    answer: `function factorial(n) {
+  if (n <= 1) return 1;
+  return n * factorial(n - 1);
+}`
+  },
+  {
+    id: "q5",
+    difficulty: "hard",
+    prompt: `Write a function 'fizzBuzz' that returns an array of numbers 1..n replaced with "Fizz"/"Buzz"/"FizzBuzz" rules.`,
+    answer: `function fizzBuzz(n) {
+  const res = [];
+  for (let i = 1; i <= n; i++) {
+    if (i % 15 === 0) res.push("FizzBuzz");
+    else if (i % 3 === 0) res.push("Fizz");
+    else if (i % 5 === 0) res.push("Buzz");
+    else res.push(i);
+  }
+  return res;
+}`
+  }
+];
+
+// UI refs
+const startBtn = document.getElementById('startBtn');
+const restartBtn = document.getElementById('restartBtn');
+const submitBtn = document.getElementById('submitBtn');
+const submitBtn2 = document.getElementById('submitBtn2');
+const showAnsBtn = document.getElementById('showAnsBtn');
+const clearBtn = document.getElementById('clearBtn');
+
+const promptDiv = document.getElementById('prompt');
+const devAnswerPre = document.getElementById('devAnswer');
+const codeInput = document.getElementById('codeInput');
+
+const timeSpan = document.getElementById('time');
+const cpmSpan = document.getElementById('cpm');
+const accSpan = document.getElementById('accuracy');
+const errSpan = document.getElementById('errors');
+const pasteCountSpan = document.getElementById('pasteCount');
+const resultArea = document.getElementById('resultArea');
+const qCountSpan = document.getElementById('qCount');
+
+const playerNameInput = document.getElementById('playerName');
+const difficultySelect = document.getElementById('difficulty');
+
+qCountSpan.innerText = QUESTIONS.length;
+
+// state
+let currentQ = null;
+let startTime = null;
+let timerInterval = null;
+let pasteCount = 0;
+let lastPickedId = localStorage.getItem('lastQuestionId') || null;
+
+// helper: pick random question matching difficulty and not equal lastPickedId if possible
+function pickQuestion(difficulty){
+  const pool = QUESTIONS.filter(q => q.difficulty === difficulty);
+  if(pool.length === 0) return null;
+  let choice;
+  if(pool.length === 1) choice = pool[0];
+  else {
+    do {
+      choice = pool[Math.floor(Math.random()*pool.length)];
+    } while(choice.id === lastPickedId && pool.length > 1);
+  }
+  lastPickedId = choice.id;
+  localStorage.setItem('lastQuestionId', lastPickedId);
+  return choice;
+}
+
+function resetStatsUI(){
+  timeSpan.innerText = '0s';
+  cpmSpan.innerText = '0';
+  accSpan.innerText = '100';
+  errSpan.innerText = '0';
+  pasteCountSpan.innerText = '0';
+  resultArea.style.display = 'none';
+  resultArea.innerHTML = '';
+  pasteCount = 0;
+  // hide dev answer by default
+  devAnswerPre.style.display = 'none';
+}
+
+function loadQuestion(q){
+  currentQ = q;
+  promptDiv.innerText = q.prompt;
+  devAnswerPre.innerText = q.answer;
+  codeInput.value = '';
+  codeInput.disabled = false;
+  codeInput.focus();
+  resetTimer();
+  resetStatsUI();
+}
+
+// start / next question
+startBtn.addEventListener('click', () => {
+  const diff = difficultySelect.value;
+  const q = pickQuestion(diff);
+  if(!q) { alert('No questions for this difficulty'); return; }
+  loadQuestion(q);
+});
+
+// restart (new question)
+restartBtn.addEventListener('click', () => {
+  const diff = difficultySelect.value;
+  const q = pickQuestion(diff);
+  if(!q) { alert('No questions for this difficulty'); return; }
+  loadQuestion(q);
+});
+
+// show/hide developer answer
+showAnsBtn.addEventListener('click', () => {
+  if(devAnswerPre.style.display === 'none'){
+    devAnswerPre.style.display = 'block';
+    showAnsBtn.innerText = 'Hide Developer Answer';
+  } else {
+    devAnswerPre.style.display = 'none';
+    showAnsBtn.innerText = 'Show Developer Answer';
+  }
+});
+
+// clear typed input
+clearBtn.addEventListener('click', () => {
+  codeInput.value = '';
+  codeInput.focus();
+  resetTimer();
+  resetStatsUI();
+});
+
+// TAB inserts tab in textarea
+codeInput.addEventListener('keydown', (e) => {
+  if(e.key === 'Tab'){
+    e.preventDefault();
+    const start = codeInput.selectionStart;
+    const end = codeInput.selectionEnd;
+    codeInput.value = codeInput.value.substring(0, start) + '\t' + codeInput.value.substring(end);
+    codeInput.selectionStart = codeInput.selectionEnd = start + 1;
+  }
+});
+
+// paste detection
+codeInput.addEventListener('paste', (e) => {
+  pasteCount++;
+  pasteCountSpan.innerText = pasteCount;
+  // allow paste but we'll penalize in scoring (indicate warning)
+  setTimeout(()=> {
+    // small visual warning in result area
+    resultArea.style.display = 'block';
+    resultArea.innerHTML = `<div style="color:#7c1919; padding:8px; border-radius:6px; background:rgba(255,0,0,0.04)">Warning: paste detected (${pasteCount}). Paste is allowed but will reduce score.</div>`;
+  },10);
+});
+
+// timer start on first input
+codeInput.addEventListener('input', () => {
+  if(!currentQ) return;
+  if(!startTime){
+    startTime = Date.now();
+    timerInterval = setInterval(updateTimer, 300);
+  }
+  updateLiveStats();
+});
+
+// update timer UI
+function updateTimer(){
+  if(!startTime) return;
+  const sec = Math.floor((Date.now() - startTime)/1000);
+  timeSpan.innerText = sec + 's';
+  updateLiveStats(); // update CPM as well
+}
+
+// live stats (accuracy / errors / cpm)
+function updateLiveStats(){
+  const typed = codeInput.value;
+  const expected = currentQ.answer;
+  // compute char by char
+  let correct = 0, errors = 0;
+  const minLen = Math.min(typed.length, expected.length);
+  for(let i=0;i<minLen;i++){
+    if(typed[i] === expected[i]) correct++;
+    else errors++;
+  }
+  // extra typed characters count as errors
+  if(typed.length > expected.length) errors += typed.length - expected.length;
+  // missing characters not yet errors until end — treat missing as 0 for accuracy for now
+  const totalTyped = typed.length || 1;
+  const accuracy = Math.round((correct / totalTyped) * 100);
+  accSpan.innerText = accuracy;
+  errSpan.innerText = errors;
+
+  // CPM = characters typed per minute
+  let cpm = 0;
+  if(startTime){
+    const minutes = (Date.now() - startTime)/60000;
+    cpm = minutes ? Math.round((typed.length)/minutes) : 0;
+  }
+  cpmSpan.innerText = cpm;
+}
+
+// === Compare on submit ===
+function computeScore(typed, expected){
+  // Character level comparison for diff and counts
+  const maxLen = Math.max(typed.length, expected.length);
+  let correct = 0, wrong = 0, missing = 0, extra = 0;
+  const charArray = [];
+  for(let i=0;i<maxLen;i++){
+    const t = typed[i];
+    const e = expected[i];
+    if(t === undefined){ // user didn't type this char
+      missing++;
+      charArray.push({ch: e || '', status:'missing'});
+    } else if(e === undefined){ // extra typed
+      extra++;
+      wrong++;
+      charArray.push({ch: t, status:'wrong'});
+    } else if(t === e){
+      correct++;
+      charArray.push({ch: t, status:'correct'});
+    } else {
+      wrong++;
+      charArray.push({ch: t, status:'wrong'});
+    }
+  }
+
+  const totalChars = expected.length;
+  const accuracy = totalChars ? Math.round((correct / (typed.length || 1)) * 100) : 0;
+
+  // time taken
+  const timeSec = startTime ? Math.max(1, Math.floor((Date.now()-startTime)/1000)) : 0;
+
+  // Simple scoring:
+  // baseScore from accuracy (0-100)
+  // completion factor = typed chars / expected chars (cap at 1)
+  // paste penalty: 5% per paste (configurable)
+  const completion = Math.min(1, typed.length / (expected.length || 1));
+  const baseScore = accuracy;
+  const completionBonus = Math.round(20 * completion); // up to +20
+  const pastePenalty = Math.min(30, pasteCount * 5); // up to -30
+  // faster typing bonus: small bonus if CPM is high relative to typical
+  const minutes = startTime ? (Date.now()-startTime)/60000 : 0.001;
+  const cpm = minutes ? Math.round(typed.length / minutes) : 0;
+  const speedBonus = Math.min(10, Math.round((cpm / 300) * 10)); // scale
+
+  let score = baseScore + completionBonus + speedBonus - pastePenalty;
+  score = Math.max(0, Math.min(100, Math.round(score)));
+
+  return {
+    correct, wrong, missing, extra, totalChars, accuracy, timeSec, cpm, score, charArray
+  };
+}
+
+// render diff with spans
+function renderDiff(charArray, expected){
+  // We'll show expected vs typed: highlight correct chars green and wrong char (typed) red/wavy.
+  // For missing chars, show expected char in muted with underline.
+  let out = '';
+  for(let i=0;i<charArray.length;i++){
+    const item = charArray[i];
+    const chEsc = escapeHtml(item.ch || '');
+    if(item.status === 'correct') out += `<span class="correct">${chEsc}</span>`;
+    else if(item.status === 'wrong') out += `<span class="wrong">${chEsc}</span>`;
+    else if(item.status === 'missing'){
+      const expCh = escapeHtml(expected[i] || '');
+      out += `<span class="muted" style="text-decoration:line-through dotted">${expCh}</span>`;
+    }
+  }
+  return out || '<span class="muted">No input</span>';
+}
+
+function escapeHtml(s){
+  return s
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/ /g,'&nbsp;');
+}
+
+// submit handler
+function handleSubmit(){
+  if(!currentQ) return alert('Start a question first');
+  const typed = codeInput.value.replace(/\r\n/g,'\n'); // normalize
+  const expected = currentQ.answer.replace(/\r\n/g,'\n');
+  if(!startTime) startTime = Date.now(); // if user submits immediately
+  const res = computeScore(typed, expected);
+
+  // show result card
+  resultArea.style.display = 'block';
+  resultArea.innerHTML = `
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <div class="badge small">Player: ${escapeHtml((playerNameInput.value||'Guest'))}</div>
+      <div class="badge small">Time: ${res.timeSec}s</div>
+      <div class="badge small">Accuracy: ${res.accuracy}%</div>
+      <div class="badge small">CPM: ${res.cpm}</div>
+      <div class="badge small">Errors: ${res.wrong}</div>
+      <div class="badge small">Missing: ${res.missing}</div>
+      <div class="badge small">Paste Penalty: ${pasteCount*5}%</div>
+      <div class="badge small" style="background:#083344;color:#a6f0e0">Score: ${res.score}/100</div>
+    </div>
+    <div style="margin-top:10px" class="small muted">Character-level comparison (your typed text):</div>
+    <div style="margin-top:8px" class="diff">${renderDiff(res.charArray, expected)}</div>
+  `;
+
+  // also update top stats
+  timeSpan.innerText = res.timeSec + 's';
+  cpmSpan.innerText = res.cpm;
+  accSpan.innerText = res.accuracy;
+  errSpan.innerText = res.wrong;
+
+  // disable editing to lock the answer for this round
+  codeInput.disabled = true;
+
+  // store best score locally per question
+  const key = `best_${currentQ.id}`;
+  const prev = JSON.parse(localStorage.getItem(key) || 'null');
+  if(!prev || res.score > prev.score){
+    localStorage.setItem(key, JSON.stringify({
+      name: playerNameInput.value || 'Guest',
+      score: res.score,
+      time: res.timeSec,
+      date: new Date().toISOString()
+    }));
+  }
+}
+
+submitBtn.addEventListener('click', handleSubmit);
+submitBtn2.addEventListener('click', handleSubmit);
+
+// helper: reset timer
+function resetTimer(){
+  startTime = null;
+  if(timerInterval) clearInterval(timerInterval);
+}
+
+// initial: preload a question of selected difficulty
+(function init(){
+  qCountSpan.innerText = QUESTIONS.length;
+  const initial = pickQuestion(difficultySelect.value);
+  if(initial) {
+    // do not auto-load; show prompt but keep start button to explicitly load
+    promptDiv.innerText = 'Press Start / Next Question to load a code challenge.';
+    devAnswerPre.innerText = initial.answer;
+  }
+})();
+</script>
+</body>
+</html>
