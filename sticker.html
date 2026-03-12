@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cute Sticker Generator</title>
+    <!-- Importing a cute font -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@700&display=swap" rel="stylesheet">
+    <!-- Added html2canvas for high-quality image generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #fdf2f8;
+            --primary: #ff9a9e;
+            --secondary: #fad0c4;
+            --accent: #a18cd1;
+            --text: #555;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(#ff9a9e 1px, transparent 1px);
+            background-size: 20px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            color: var(--text);
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            color: var(--accent);
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 0px #fff;
+            margin-bottom: 10px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: center;
+            align-items: flex-start;
+            max-width: 1000px;
+            width: 100%;
+        }
+
+        /* --- Controls Section --- */
+        .controls {
+            background: white;
+            padding: 30px;
+            border-radius: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        input[type="text"] {
+            padding: 12px;
+            border: 2px solid #eee;
+            border-radius: 12px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .color-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .color-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .toggle-btn {
+            background: #f0f0f0;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .download-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(161, 140, 209, 0.4);
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(161, 140, 209, 0.6);
+        }
+
+        /* --- Sticker Preview Section --- */
+        .preview-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
+        /* The Sticker Canvas */
+        #sticker-canvas {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        /* Sticker Elements */
+        .sticker-bg {
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            background-color: #fff0f5;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+            transition: background-color 0.3s;
+            z-index: 1;
+        }
+
+        .sticker-text {
+            font-family: 'Fredoka One', cursive;
+            font-size: 3rem;
+            color: #555;
+            z-index: 2;
+            text-align: center;
+            word-wrap: break-word;
+            width: 80%;
+            line-height: 1.1;
+            transition: color 0.3s;
+        }
+
+        /* Cute Face Elements */
+        .face {
+            position: absolute;
+            z-index: 3;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .eye {
+            position: absolute;
+            top: 35%;
+            width: 15px;
+            height: 15px;
+            background: #333;
+            border-radius: 50%;
+            animation: blink 4s infinite;
+        }
+
+        .eye.left { left: 35%; }
+        .eye.right { right: 35%; }
+
+        .mouth {
+            position: absolute;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 10px;
+            border-bottom: 3px solid #333;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .blush {
+            position: absolute;
+            top: 45%;
+            width: 20px;
+            height: 10px;
+            background: #ff9a9e;
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .blush.left { left: 30%; }
+        .blush.right { right: 30%; }
+
+        .sparkle {
+            position: absolute;
+            color: gold;
+            font-size: 24px;
+            animation: twinkle 2s infinite ease-in-out;
+            z-index: 4;
+        }
+
+        /* Animations */
+        @keyframes blink {
+            0%, 96%, 100% { transform: scaleY(1); }
+            98% { transform: scaleY(0.1); }
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; transform: scale(0.5); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Shape Variations */
+        .shape-blob { border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; }
+        .shape-square { border-radius: 20px; }
+        .shape-cloud { border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; }
+
+    </style>
+</head>
+<body>
+
+    <h1>✨ Sticker Maker ✨</h1>
+
+    <div class="container">
+        <!-- Controls -->
+        <div class="controls">
+            <div class="input-group">
+                <label>What should the sticker say?</label>
+                <input type="text" id="textInput" placeholder="Type here..." maxlength="10" value="Cute!">
+            </div>
+
+            <div class="input-group">
+                <label>Background Color</label>
+                <div class="color-picker" id="colorPicker">
+                    <div class="color-btn" style="background: #fff0f5;" data-color="#fff0f5"></div>
+                    <div class="color-btn" style="background: #e0f7fa;" data-color="#e0f7fa"></div>
+                    <div class="color-btn" style="background: #f3e5f5;" data-color="#f3e5f5"></div>
+                    <div class="color-btn" style="background: #fff9c4;" data-color="#fff9c4"></div>
+                    <div class="color-btn" style="background: #ffe0b2;" data-color="#ffe0b2"></div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Shape</label>
+                <div class="color-picker" id="shapePicker">
+                    <button class="toggle-btn active" data-shape="circle">Circle</button>
+                    <button class="toggle-btn" data-shape="blob">Blob</button>
+                    <button class="toggle-btn" data-shape="square">Square</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Extras</label>
+                <button class="toggle-btn" id="toggleBlush">Add Blush</button>
+                <button class="toggle-btn" id="toggleSparkles">Add Sparkles</button>
+            </div>
+
+            <button class="download-btn" id="downloadBtn">Download Sticker</button>
+        </div>
+
+        <!-- Preview -->
+        <div class="preview-area">
+            <div id="sticker-canvas">
+                <div class="sticker-bg" id="stickerBg">
+                    <div class="sticker-text" id="stickerText">Cute!</div>
+                    
+                    <!-- Face -->
+                    <div class="face">
+                        <div class="eye left"></div>
+                        <div class="eye right"></div>
+                        <div class="mouth"></div>
+                        <div class="blush left"></div>
+                        <div class="blush right"></div>
+                    </div>
+
+                    <!-- Sparkles (Hidden by default) -->
+                    <div class="sparkle" style="top: 10%; left: 10%;">✨</div>
+                    <div class="sparkle" style="top: 80%; right: 15%; animation-delay: 0.5s;">✨</div>
+                    <div class="sparkle" style="top: 15%; right: 20%; animation-delay: 1s;">✨</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script to handle logic -->
+    <script>
+        const textInput = document.getElementById('textInput');
+        const stickerText = document.getElementById('stickerText');
+        const stickerBg = document.getElementById('stickerBg');
+        const colorBtns = document.querySelectorAll('.color-btn');
+        const shapeBtns = document.querySelectorAll('#shapePicker .toggle-btn');
+        const toggleBlush = document.getElementById('toggleBlush');
+        const toggleSparkles = document.getElementById('toggleSparkles');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const blushes = document.querySelectorAll('.blush');
+        const sparkles = document.querySelectorAll('.sparkle');
+
+        // 1. Text Update
+        textInput.addEventListener('input', (e) => {
+            stickerText.innerText = e.target.value || " ";
+        });
+
+        // 2. Color Change
+        colorBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                stickerBg.style.backgroundColor = btn.getAttribute('data-color');
+            });
+        });
+
+        // 3. Shape Change
+        shapeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all
+                shapeBtns.forEach(b => b.classList.remove('active'));
+                // Add to clicked
+                btn.classList.add('active');
+                
+                // Remove old shapes
+                stickerBg.classList.remove('shape-blob', 'shape-square', 'shape-cloud');
+                // Add new shape
+                stickerBg.classList.add('shape-' + btn.getAttribute('data-shape'));
+            });
+        });
+
+        // 4. Toggle Blush
+        toggleBlush.addEventListener('click', () => {
+            toggleBlush.classList.toggle('active');
+            blushes.forEach(b => b.style.opacity = toggleBlush.classList.contains('active') ? '1' : '0');
+        });
+
+        // 5. Toggle Sparkles
+        toggleSparkles.addEventListener('click', () => {
+            toggleSparkles.classList.toggle('active');
+            sparkles.forEach(s => s.style.opacity = toggleSparkles.classList.contains('active') ? '1' : '0');
+        });
+
+        // 6. Download Functionality
+        downloadBtn.addEventListener('click', () => {
+            const canvasElement = document.getElementById('sticker-canvas');
+            
+            // Use html2canvas to capture the DOM element as an image
+            html2canvas(canvasElement, {
+                scale: 2, // Higher resolution
+                backgroundColor: null // Transparent background for the container
+            }).then(canvas => {
+                // Create a temporary link to download the image
+                const link = document.createElement('a');
+                link.download = 'my-cute-sticker.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        });
+    </script>
+</body>
+</html>
